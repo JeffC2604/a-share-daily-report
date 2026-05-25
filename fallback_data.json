@@ -1,0 +1,62 @@
+{
+  "note": "Manual fallback for index data when online APIs fail. Fill values by hand from a trusted quote source.",
+  "updated_at": "",
+  "index_data": [
+    {
+      "code": "000001",
+      "name": "上证指数",
+      "last": "",
+      "pct_change": "",
+      "change": "",
+      "amount": ""
+    },
+    {
+      "code": "399001",
+      "name": "深证成指",
+      "last": "",
+      "pct_change": "",
+      "change": "",
+      "amount": ""
+    },
+    {
+      "code": "399006",
+      "name": "创业板指",
+      "last": "",
+      "pct_change": "",
+      "change": "",
+      "amount": ""
+    },
+    {
+      "code": "000300",
+      "name": "沪深300",
+      "last": "",
+      "pct_change": "",
+      "change": "",
+      "amount": ""
+    },
+    {
+      "code": "000905",
+      "name": "中证500",
+      "last": "",
+      "pct_change": "",
+      "change": "",
+      "amount": ""
+    },
+    {
+      "code": "000852",
+      "name": "中证1000",
+      "last": "",
+      "pct_change": "",
+      "change": "",
+      "amount": ""
+    },
+    {
+      "code": "000688",
+      "name": "科创50",
+      "last": "",
+      "pct_change": "",
+      "change": "",
+      "amount": ""
+    }
+  ]
+}
