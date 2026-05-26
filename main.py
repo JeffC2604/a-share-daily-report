@@ -41,6 +41,12 @@ SRC_BACKUP = "\u5907\u7528\u6307\u6570\u63a5\u53e3"
 SRC_FALLBACK = "\u672c\u5730fallback_data.json"
 SRC_TIATIAN = "\u5929\u5929\u57fa\u91d1\u6570\u636e"
 
+STATUS_HEADERS = ["\u6570\u636e\u6e90", "\u72b6\u6001", "\u5931\u8d25\u539f\u56e0", "\u6570\u636e"]
+INDEX_HEADERS = ["\u4ee3\u7801", "\u540d\u79f0", "\u6700\u65b0\u70b9\u4f4d", "\u6da8\u8dcc\u5e45", "\u6da8\u8dcc\u70b9", "\u6210\u4ea4\u989d", "\u6765\u6e90"]
+SECTOR_HEADERS = ["\u7c7b\u578b", "\u4ee3\u7801", "\u540d\u79f0", "\u6da8\u8dcc\u5e45", "\u6210\u4ea4\u989d", "\u8d44\u91d1\u70ed\u5ea6", "\u4e0a\u6da8\u5bb6\u6570", "\u4e0b\u8dcc\u5bb6\u6570", "\u9886\u6da8\u6807\u7684", "\u9886\u6da8\u5e45"]
+CANDIDATE_HEADERS = ["\u80a1\u7968\u4ee3\u7801", "\u80a1\u7968\u540d\u79f0", "\u5e02\u573a\u7c7b\u578b", "\u6240\u5c5e\u677f\u5757", "\u6700\u65b0\u4ef7", "\u6da8\u8dcc\u5e45", "\u6210\u4ea4\u989d", "\u6362\u624b\u7387", "\u5165\u9009\u539f\u56e0", "\u98ce\u9669\u63d0\u793a", "\u7f6e\u4fe1\u5ea6"]
+FUND_HEADERS = ["\u57fa\u91d1\u4ee3\u7801", "\u540d\u79f0", "\u51c0\u503c\u65e5\u671f", "\u5355\u4f4d\u51c0\u503c", "\u4f30\u7b97\u51c0\u503c", "\u4f30\u7b97\u6da8\u5e45", "\u4f30\u503c\u65f6\u95f4"]
+
 
 def load_config() -> dict:
     if not CONFIG_PATH.exists():
@@ -221,23 +227,23 @@ def render_report(index_result, fund_results, sector_result, candidate_result, r
 
 ## \u6570\u636e\u6e90\u72b6\u6001
 
-{markdown_table(["\u6570\u636e\u6e90", "\u72b6\u6001", "\u5931\u8d25\u539f\u56e0", "\u6570\u636e"], status_rows)}
+{markdown_table(STATUS_HEADERS, status_rows)}
 
 ## \u6307\u6570\u6570\u636e\u8868
 
-{markdown_table(["\u4ee3\u7801", "\u540d\u79f0", "\u6700\u65b0\u70b9\u4f4d", "\u6da8\u8dcc\u5e45", "\u6da8\u8dcc\u70b9", "\u6210\u4ea4\u989d", "\u6765\u6e90"], index_rows)}
+{markdown_table(INDEX_HEADERS, index_rows)}
 
 ## \u677f\u5757\u6570\u636e\u8868
 
-{markdown_table(["\u7c7b\u578b", "\u4ee3\u7801", "\u540d\u79f0", "\u6da8\u8dcc\u5e45", "\u6210\u4ea4\u989d", "\u8d44\u91d1\u70ed\u5ea6", "\u4e0a\u6da8\u5bb6\u6570", "\u4e0b\u8dcc\u5bb6\u6570", "\u9886\u6da8\u6807\u7684", "\u9886\u6da8\u5e45"], sector_rows)}
+{markdown_table(SECTOR_HEADERS, sector_rows)}
 
 ## \u5019\u9009\u89c2\u5bdf\u6c60\u8868
 
-{markdown_table(["\u80a1\u7968\u4ee3\u7801", "\u80a1\u7968\u540d\u79f0", "\u5e02\u573a\u7c7b\u578b", "\u6240\u5c5e\u677f\u5757", "\u6700\u65b0\u4ef7", "\u6da8\u8dcc\u5e45", "\u6210\u4ea4\u989d", "\u6362\u624b\u7387", "\u5165\u9009\u539f\u56e0", "\u98ce\u9669\u63d0\u793a", "\u7f6e\u4fe1\u5ea6"], candidate_rows)}
+{markdown_table(CANDIDATE_HEADERS, candidate_rows)}
 
 ## \u57fa\u91d1\u4f30\u503c\u8868
 
-{markdown_table(["\u57fa\u91d1\u4ee3\u7801", "\u540d\u79f0", "\u51c0\u503c\u65e5\u671f", "\u5355\u4f4d\u51c0\u503c", "\u4f30\u7b97\u51c0\u503c", "\u4f30\u7b97\u6da8\u5e45", "\u4f30\u503c\u65f6\u95f4"], fund_rows)}
+{markdown_table(FUND_HEADERS, fund_rows)}
 
 ## \u6570\u636e\u7f3a\u5931\u63d0\u793a
 
@@ -299,15 +305,15 @@ def render_html_report(index_result, fund_results, sector_result, candidate_resu
     <section class="notice">{sector_html}</section>
     <section class="notice">{candidate_html}</section>
     <h2>\u6570\u636e\u6e90\u72b6\u6001</h2>
-    {html_table(["\u6570\u636e\u6e90", "\u72b6\u6001", "\u5931\u8d25\u539f\u56e0", "\u6570\u636e"], status_rows, status_column=1)}
+    {html_table(STATUS_HEADERS, status_rows, status_column=1)}
     <h2>\u6307\u6570\u6570\u636e\u8868</h2>
-    {html_table(["\u4ee3\u7801", "\u540d\u79f0", "\u6700\u65b0\u70b9\u4f4d", "\u6da8\u8dcc\u5e45", "\u6da8\u8dcc\u70b9", "\u6210\u4ea4\u989d", "\u6765\u6e90"], index_rows)}
+    {html_table(INDEX_HEADERS, index_rows)}
     <h2>\u677f\u5757\u6570\u636e\u8868</h2>
-    {html_table(["\u7c7b\u578b", "\u4ee3\u7801", "\u540d\u79f0", "\u6da8\u8dcc\u5e45", "\u6210\u4ea4\u989d", "\u8d44\u91d1\u70ed\u5ea6", "\u4e0a\u6da8\u5bb6\u6570", "\u4e0b\u8dcc\u5bb6\u6570", "\u9886\u6da8\u6807\u7684", "\u9886\u6da8\u5e45"], sector_rows)}
+    {html_table(SECTOR_HEADERS, sector_rows)}
     <h2>\u5019\u9009\u89c2\u5bdf\u6c60\u8868</h2>
-    {html_table(["\u80a1\u7968\u4ee3\u7801", "\u80a1\u7968\u540d\u79f0", "\u5e02\u573a\u7c7b\u578b", "\u6240\u5c5e\u677f\u5757", "\u6700\u65b0\u4ef7", "\u6da8\u8dcc\u5e45", "\u6210\u4ea4\u989d", "\u6362\u624b\u7387", "\u5165\u9009\u539f\u56e0", "\u98ce\u9669\u63d0\u793a", "\u7f6e\u4fe1\u5ea6"], candidate_rows)}
+    {html_table(CANDIDATE_HEADERS, candidate_rows)}
     <h2>\u57fa\u91d1\u4f30\u503c\u8868</h2>
-    {html_table(["\u57fa\u91d1\u4ee3\u7801", "\u540d\u79f0", "\u51c0\u503c\u65e5\u671f", "\u5355\u4f4d\u51c0\u503c", "\u4f30\u7b97\u51c0\u503c", "\u4f30\u7b97\u6da8\u5e45", "\u4f30\u503c\u65f6\u95f4"], fund_rows)}
+    {html_table(FUND_HEADERS, fund_rows)}
     <h2>\u6570\u636e\u7f3a\u5931\u63d0\u793a</h2>
     <ul>{missing_notes}</ul>
     <h2>\u98ce\u9669\u63d0\u793a</h2>
