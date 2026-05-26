@@ -151,6 +151,8 @@ def build_missing_notes(index_result, fund_results, sector_result) -> list[str]:
         if sector_status.status == CN_FAILED or sector_status.data == CN_MISSING:
             reason = sector_status.failure_reason or CN_UNKNOWN
             notes.append(f"{sector_status.source}\u6570\u636e\u7f3a\u5931\uff0c\u5931\u8d25\u539f\u56e0\uff1a{reason}\u3002")
+    if sector_result.statuses and not sector_result.data:
+        notes.append("\u4e91\u7aef\u73af\u5883\u4e0b\u677f\u5757\u63a5\u53e3\u6682\u65f6\u4e0d\u53ef\u7528\u3002")
     for fund_result in fund_results:
         if not fund_result.data:
             reason = fund_result.fetch.error_type or CN_UNKNOWN
