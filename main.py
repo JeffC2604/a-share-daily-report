@@ -35,6 +35,7 @@ CN_FAILED = "\u5931\u8d25"
 CN_UNUSED = "\u672a\u4f7f\u7528"
 CN_USED = "\u5df2\u4f7f\u7528"
 CN_UNKNOWN = "\u672a\u77e5"
+CN_UNAVAILABLE = "\u4e0d\u53ef\u7528"
 
 SRC_EASTMONEY = "\u4e1c\u65b9\u8d22\u5bcc\u6307\u6570\u63a5\u53e3"
 SRC_BACKUP = "\u5907\u7528\u6307\u6570\u63a5\u53e3"
@@ -88,7 +89,7 @@ def html_table(headers: list[str], rows: list[list[object]], status_column: int 
             status = str(padded[status_column])
             if status == CN_SUCCESS:
                 css_class = ' class="status-success"'
-            elif status == CN_FAILED or CN_MISSING in status:
+            elif status == CN_FAILED or CN_MISSING in status or CN_UNAVAILABLE in status:
                 css_class = ' class="status-failed"'
         cells = "".join(f"<td>{escape(str(value))}</td>" for value in padded[: len(headers)])
         body_rows.append(f"<tr{css_class}>{cells}</tr>")
@@ -151,6 +152,9 @@ def build_missing_notes(index_result, fund_results, sector_result) -> list[str]:
         if sector_status.status == CN_FAILED or sector_status.data == CN_MISSING:
             reason = sector_status.failure_reason or CN_UNKNOWN
             notes.append(f"{sector_status.source}\u6570\u636e\u7f3a\u5931\uff0c\u5931\u8d25\u539f\u56e0\uff1a{reason}\u3002")
+    if hasattr(sector_result, "quality") and not sector_result.quality.usable:
+        notes.append(f"{sector_result.quality.reason}\u3002")
+        notes.append("\u5019\u9009\u6c60\u672a\u751f\u6210\uff1a\u677f\u5757\u6838\u5fc3\u5b57\u6bb5\u7f3a\u5931\uff0c\u65e0\u6cd5\u7b5b\u9009\u3002")
     if sector_result.statuses and not sector_result.data:
         notes.append("\u4e91\u7aef\u73af\u5883\u4e0b\u677f\u5757\u63a5\u53e3\u6682\u65f6\u4e0d\u53ef\u7528\u3002")
     for fund_result in fund_results:
@@ -167,21 +171,28 @@ def collect_rows(index_result, fund_results, sector_result, configured_indexes: 
     configured_codes = {str(item.get("code", "")) for item in configured_indexes}
     filtered_index_data = [item for item in index_result.data if not configured_codes or str(item.code) in configured_codes]
     index_rows = [[item.code, item.name, item.last, item.pct_change, item.change, item.amount, item.source] for item in filtered_index_data]
-    sector_rows = [
-        [
-            item.category,
-            item.code,
-            item.name,
-            item.pct_change,
-            item.amount,
-            item.fund_flow,
-            item.rising_count,
-            item.falling_count,
-            item.lead_stock,
-            item.lead_stock_pct,
+    sector_quality_usable = not hasattr(sector_result, "quality") or sector_result.quality.usable
+    if sector_quality_usable:
+        sector_rows = [
+            [
+                item.category,
+                item.code,
+                item.name,
+                item.pct_change,
+                item.amount,
+                item.fund_flow,
+                item.rising_count,
+                item.falling_count,
+                item.lead_stock,
+                item.lead_stock_pct,
+            ]
+            for item in sector_result.data
         ]
-        for item in sector_result.data
-    ]
+    else:
+        sector_rows = [
+            [item.category, item.code, item.name, CN_UNAVAILABLE, CN_UNAVAILABLE, CN_UNAVAILABLE, CN_UNAVAILABLE, CN_UNAVAILABLE, CN_UNAVAILABLE, CN_UNAVAILABLE]
+            for item in sector_result.data
+        ]
     fund_data = []
     fund_rows = []
     for fund_result in fund_results:
@@ -198,7 +209,8 @@ def render_report(index_result, fund_results, sector_result, candidate_result, r
     filtered_index_data, index_rows, sector_rows, fund_data, fund_rows = collect_rows(index_result, fund_results, sector_result, configured_indexes)
     missing_notes = "\n".join(f"- {note}" for note in build_missing_notes(index_result, fund_results, sector_result))
     initial_observation = render_initial_observation(filtered_index_data, fund_data, statuses)
-    sector_observation = render_sector_heat_observation(sector_result.data, [DataSourceStatus(s.source, s.status, s.failure_reason, s.data) for s in sector_result.statuses])
+    sector_data_for_observation = sector_result.data if sector_result.quality.usable else []
+    sector_observation = render_sector_heat_observation(sector_data_for_observation, [DataSourceStatus(s.source, s.status, s.failure_reason, s.data) for s in sector_result.statuses])
     candidate_observation = render_candidate_pool_observation(candidate_result.candidates, candidate_result.confidence, candidate_result.notes)
     candidate_rows = [
         [
@@ -263,7 +275,8 @@ def render_html_report(index_result, fund_results, sector_result, candidate_resu
     filtered_index_data, index_rows, sector_rows, fund_data, fund_rows = collect_rows(index_result, fund_results, sector_result, configured_indexes)
     missing_notes = "".join(f"<li>{escape(note)}</li>" for note in build_missing_notes(index_result, fund_results, sector_result))
     initial_html = "<br>".join(escape(line) for line in render_initial_observation(filtered_index_data, fund_data, statuses).splitlines() if line.strip())
-    sector_html = "<br>".join(escape(line) for line in render_sector_heat_observation(sector_result.data, [DataSourceStatus(s.source, s.status, s.failure_reason, s.data) for s in sector_result.statuses]).splitlines() if line.strip())
+    sector_data_for_observation = sector_result.data if sector_result.quality.usable else []
+    sector_html = "<br>".join(escape(line) for line in render_sector_heat_observation(sector_data_for_observation, [DataSourceStatus(s.source, s.status, s.failure_reason, s.data) for s in sector_result.statuses]).splitlines() if line.strip())
     candidate_html = "<br>".join(escape(line) for line in render_candidate_pool_observation(candidate_result.candidates, candidate_result.confidence, candidate_result.notes).splitlines() if line.strip())
     candidate_rows = [
         [
@@ -334,7 +347,11 @@ def main() -> None:
 
     index_result = fetch_index_data()
     sector_result = fetch_sector_data()
-    candidate_result = build_candidate_pool(sector_result.data)
+    if sector_result.quality.usable:
+        candidate_result = build_candidate_pool(sector_result.data)
+    else:
+        candidate_result = build_candidate_pool([])
+        candidate_result.notes = ["\u5019\u9009\u6c60\u672a\u751f\u6210\uff1a\u677f\u5757\u6838\u5fc3\u5b57\u6bb5\u7f3a\u5931\uff0c\u65e0\u6cd5\u7b5b\u9009"]
     fund_results = [fetch_tiantian_fund_estimate(fund_code) for fund_code in funds]
 
     markdown = render_report(index_result, fund_results, sector_result, candidate_result, report_date, config.get("indexes", []))

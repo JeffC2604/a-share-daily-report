@@ -9,6 +9,7 @@ CN_MEDIUM = "\u4e2d"
 CN_LOW = "\u4f4e"
 CN_FAILED = "\u5931\u8d25"
 CN_MISSING = "\u7f3a\u5931"
+CN_UNAVAILABLE = "\u4e0d\u53ef\u7528"
 SRC_FALLBACK = "\u672c\u5730fallback_data.json"
 
 
@@ -75,7 +76,7 @@ def _data_completeness(statuses: list[DataSourceStatus]) -> tuple[str, int]:
     failed = [
         item
         for item in statuses
-        if (item.status == CN_FAILED or item.data == CN_MISSING) and item.source != SRC_FALLBACK
+        if (item.status == CN_FAILED or item.data in {CN_MISSING, CN_UNAVAILABLE} or CN_UNAVAILABLE in item.status) and item.source != SRC_FALLBACK
     ]
     if not failed:
         return "\u6570\u636e\u6e90\u5b8c\u6574\u3002", 0
@@ -121,11 +122,11 @@ def _top_sector_lines(sector_data: list[SectorData], limit: int = 5) -> list[str
 
 
 def render_sector_heat_observation(sector_data: list[SectorData], statuses: list[DataSourceStatus]) -> str:
-    failed = [item for item in statuses if item.status == CN_FAILED or item.data == CN_MISSING]
+    failed = [item for item in statuses if item.status == CN_FAILED or item.data in {CN_MISSING, CN_UNAVAILABLE} or CN_UNAVAILABLE in item.status]
     confidence = _confidence(bool(sector_data), True, len(failed))
 
     if not sector_data:
-        body = "- \u677f\u5757\u6570\u636e\u7f3a\u5931\uff0c\u65e0\u6cd5\u8f93\u51fa\u70ed\u5ea6\u89c2\u5bdf\u3002"
+        body = "- \u677f\u5757\u63a5\u53e3\u8fd4\u56de\u4e0d\u5b8c\u6574\uff0c\u65e0\u6cd5\u5f62\u6210\u6709\u6548\u677f\u5757\u5f3a\u5f31\u5224\u65ad\u3002"
     else:
         lines = _top_sector_lines(sector_data)
         body = "\n".join(f"- {line}" for line in lines)
